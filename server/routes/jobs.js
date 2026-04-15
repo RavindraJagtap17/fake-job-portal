@@ -122,4 +122,39 @@ router.get('/history', auth, async (req, res) => {
   }
 });
 
+
+const scrapeJobFromURL = require('../utils/scraper');
+
+// POST - Scrape job from URL
+router.post('/scrape', auth, async (req, res) => {
+  try {
+    const { url } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ message: 'URL is required' });
+    }
+
+    // Validate URL format
+    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    if (!urlPattern.test(url)) {
+      return res.status(400).json({ message: 'Invalid URL format' });
+    }
+
+    // Scrape job details
+    const scrapedData = await scrapeJobFromURL(url);
+
+    if (!scrapedData.success) {
+      return res.status(400).json({ message: scrapedData.error });
+    }
+
+    res.json({
+      message: 'Job details extracted successfully',
+      data: scrapedData
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;
