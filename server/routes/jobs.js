@@ -1,7 +1,9 @@
 const express = require('express');
+const axios = require('axios');
 const router = express.Router();
 const Job = require('../models/Job');
 const auth = require('../middleware/auth');
+const scrapeJobFromURL = require('../utils/scraper');
 
 // Detection logic
 const detectFakeJob = (jobData) => {
@@ -60,7 +62,6 @@ const detectFakeJob = (jobData) => {
   }
 
   const result = score >= 4 ? 'FAKE' : 'REAL';
-
   return { result, score, flags };
 };
 
@@ -73,8 +74,35 @@ router.post('/check', auth, async (req, res) => {
       return res.status(400).json({ message: 'Job title and description are required' });
     }
 
-    // Run detection
-    const { result, score, flags } = detectFakeJob({ jobTitle, companyName, description, salary });
+    // Rule based detection
+    const ruleResult = detectFakeJob({ jobTitle, companyName, description, salary });
+
+    // ML based detection
+    let mlResult = null;
+    try {
+      const mlResponse = await axios.post('http://localhost:5001/predict', {
+        jobTitle,
+        companyName,
+        description,
+        salary
+      });
+      mlResult = mlResponse.data;
+    } catch (mlError) {
+      console.log('ML service unavailable, using rule based only');
+    }
+
+    // Combine both results
+    let finalResult = ruleResult.result;
+    let confidence = null;
+    let fakeProbability = null;
+    let realProbability = null;
+
+    if (mlResult) {
+      finalResult = mlResult.result === 'FAKE' || ruleResult.result === 'FAKE' ? 'FAKE' : 'REAL';
+      confidence = mlResult.confidence;
+      fakeProbability = mlResult.fake_probability;
+      realProbability = mlResult.real_probability;
+    }
 
     // Save to database
     const job = await Job.create({
@@ -83,16 +111,21 @@ router.post('/check', auth, async (req, res) => {
       companyName,
       description,
       salary,
-      result,
-      score,
-      flags: JSON.stringify(flags)
+      result: finalResult,
+      score: ruleResult.score,
+      flags: JSON.stringify(ruleResult.flags)
     });
 
     res.json({
       message: 'Job analyzed successfully',
-      result,
-      score,
-      flags,
+      result: finalResult,
+      score: ruleResult.score,
+      flags: ruleResult.flags,
+      mlAnalysis: mlResult ? {
+        confidence: confidence,
+        fakeProbability: fakeProbability,
+        realProbability: realProbability
+      } : null,
       jobId: job.id
     });
 
@@ -109,7 +142,6 @@ router.get('/history', auth, async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    // Parse flags from string to array
     const jobsFormatted = jobs.map(job => ({
       ...job.dataValues,
       flags: JSON.parse(job.flags || '[]')
@@ -122,9 +154,6 @@ router.get('/history', auth, async (req, res) => {
   }
 });
 
-
-const scrapeJobFromURL = require('../utils/scraper');
-
 // POST - Scrape job from URL
 router.post('/scrape', auth, async (req, res) => {
   try {
@@ -134,13 +163,11 @@ router.post('/scrape', auth, async (req, res) => {
       return res.status(400).json({ message: 'URL is required' });
     }
 
-    // Validate URL format
     const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
     if (!urlPattern.test(url)) {
       return res.status(400).json({ message: 'Invalid URL format' });
     }
 
-    // Scrape job details
     const scrapedData = await scrapeJobFromURL(url);
 
     if (!scrapedData.success) {

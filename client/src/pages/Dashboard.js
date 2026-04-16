@@ -204,9 +204,49 @@ const Dashboard = () => {
             <span className={`result-badge ${result.result === 'FAKE' ? 'badge-fake' : 'badge-real'}`}>
               {result.result === 'FAKE' ? '❌ FAKE JOB' : '✅ REAL JOB'}
             </span>
+
+            {/* ML Analysis */}
+            {result.mlAnalysis && (
+              <div style={{
+                background: '#f8f8ff',
+                border: '1px solid #e0e0ff',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                marginBottom: '12px'
+              }}>
+                <p style={{ fontWeight: '500', marginBottom: '8px', color: '#4f46e5' }}>
+                  🤖 ML Model Analysis
+                </p>
+                <p style={{ fontSize: '14px', color: '#555', marginBottom: '6px' }}>
+                  Confidence: <strong>{result.mlAnalysis.confidence}%</strong>
+                </p>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <span style={{
+                    background: '#fff5f5',
+                    color: '#e53e3e',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    fontSize: '13px'
+                  }}>
+                    ❌ Fake: {result.mlAnalysis.fakeProbability}%
+                  </span>
+                  <span style={{
+                    background: '#f0fff4',
+                    color: '#38a169',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    fontSize: '13px'
+                  }}>
+                    ✅ Real: {result.mlAnalysis.realProbability}%
+                  </span>
+                </div>
+              </div>
+            )}
+
             <p style={{ color: '#555', marginBottom: '8px' }}>
-              Suspicion Score: <strong>{result.score}</strong>
+              Rule Based Score: <strong>{result.score}</strong>
             </p>
+
             {result.flags.length > 0 && (
               <>
                 <p style={{ fontWeight: '500', marginBottom: '8px' }}>Reasons:</p>
@@ -217,6 +257,7 @@ const Dashboard = () => {
                 </ul>
               </>
             )}
+
             {result.result === 'REAL' && (
               <p style={{ color: '#38a169', marginTop: '8px' }}>
                 ✅ No suspicious activity detected in this job posting.
