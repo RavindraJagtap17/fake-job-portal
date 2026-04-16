@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import History from './pages/History';
+import Admin from './pages/Admin';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -22,6 +23,9 @@ function App() {
         } />
         <Route path="/history" element={
           <PrivateRoute><History /></PrivateRoute>
+        } />
+        <Route path="/admin" element={
+          <PrivateRoute><Admin /></PrivateRoute>
         } />
       </Routes>
     </Router>

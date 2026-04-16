@@ -13,19 +13,23 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const res = await API.post('/auth/login', formData);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  try {
+    const res = await API.post('/auth/login', formData);
+    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('user', JSON.stringify(res.data.user));
+    if (res.data.user.isAdmin) {
+      navigate('/admin');
+    } else {
       navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    setError(err.response?.data?.message || 'Something went wrong');
+  }
+  setLoading(false);
+};
 
   return (
     <div className="auth-container">
