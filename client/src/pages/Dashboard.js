@@ -19,7 +19,6 @@ const Dashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Scrape job from URL
   const handleScrape = async () => {
     if (!url) {
       setError('Please enter a URL');
@@ -68,8 +67,16 @@ const Dashboard = () => {
       {/* Navbar */}
       <div className="navbar">
         <h1>🔍 Fake Job Detector</h1>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span>Welcome, {user?.name}</span>
+          {user?.isAdmin && (
+            <button
+              className="logout-btn"
+              onClick={() => navigate('/admin')}
+              style={{ background: '#4f46e5' }}>
+              👑 Admin Panel
+            </button>
+          )}
           <button className="logout-btn" onClick={() => navigate('/history')}>
             History
           </button>
