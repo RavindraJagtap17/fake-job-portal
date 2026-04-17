@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
 
@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const resultRef = useRef(null);
   const [scraping, setScraping] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('manual');
@@ -50,6 +51,9 @@ const Dashboard = () => {
     try {
       const res = await API.post('/jobs/check', formData);
       setResult(res.data);
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
     }
@@ -200,7 +204,7 @@ const Dashboard = () => {
 
         {/* Result Card */}
         {result && (
-          <div className={`result-card ${result.result === 'FAKE' ? 'result-fake' : 'result-real'}`}>
+          <div ref={resultRef} className={`result-card ${result.result === 'FAKE' ? 'result-fake' : 'result-real'}`}>
             <span className={`result-badge ${result.result === 'FAKE' ? 'badge-fake' : 'badge-real'}`}>
               {result.result === 'FAKE' ? '❌ FAKE JOB' : '✅ REAL JOB'}
             </span>
