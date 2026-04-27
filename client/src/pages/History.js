@@ -23,33 +23,41 @@ const History = () => {
   return (
     <div>
       <div className="navbar">
-        <h1>🔍 Fake Job Detector</h1>
-        <div>
-          <button className="logout-btn" onClick={() => navigate('/dashboard')}>
-            Back to Check
+        <h1>🔍 JobGuard</h1>
+        <div className="navbar-right">
+          <button className="nav-btn" onClick={() => navigate('/dashboard')}>
+            ← Back
           </button>
         </div>
       </div>
 
-      <div className="container" style={{ marginTop: '30px' }}>
-        <h2 style={{ marginBottom: '20px', color: '#1a1a2e' }}>Your Check History</h2>
+      <div className="container">
+        <p className="page-title">Your Check History</p>
 
-        {loading && <p style={{ color: '#666' }}>Loading...</p>}
+        {loading && <div className="loading">Loading...</div>}
 
         {!loading && jobs.length === 0 && (
-          <p style={{ color: '#666' }}>No history yet. Go check a job posting!</p>
+          <div className="empty-state">
+            <p style={{ fontSize: '40px' }}>📋</p>
+            <p>No history yet. Go check a job posting!</p>
+          </div>
         )}
 
         {jobs.map((job) => (
           <div key={job.id} className="history-item">
-            <div>
-              <p className="history-title">{job.jobTitle}</p>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p className="history-title" style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {job.jobTitle}
+              </p>
               <p className="history-company">
-                {job.companyName || 'No company name'} • Score: {job.score}
+                {job.companyName || 'No company'} • Score: {job.score}
               </p>
             </div>
-            <span className={`result-badge ${job.result === 'FAKE' ? 'badge-fake' : 'badge-real'}`}
-              style={{ fontSize: '14px', padding: '4px 14px' }}>
+            <span className={`history-badge ${job.result === 'FAKE' ? 'fake' : 'real'}`}>
               {job.result === 'FAKE' ? '❌ FAKE' : '✅ REAL'}
             </span>
           </div>

@@ -29,8 +29,12 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>🔍 Fake Job Detector</h2>
-        <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#666' }}>Create Account</h3>
+        <div className="auth-logo">
+          <div className="auth-logo-icon">🔍</div>
+          <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#1a1a2e' }}>JobGuard</h1>
+          <p style={{ fontSize: '13px', color: '#999', marginTop: '4px' }}>Fake Job Detection Portal</p>
+        </div>
+        <h2>Create Account</h2>
         {error && <p className="error-msg">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -38,14 +42,14 @@ const Register = () => {
             <input
               type="text"
               name="name"
-              placeholder="Enter your name"
+              placeholder="Enter your full name"
               value={formData.name}
               onChange={handleChange}
               required
             />
           </div>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               name="email"
@@ -60,14 +64,14 @@ const Register = () => {
             <input
               type="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
               required
             />
           </div>
           <button className="btn" type="submit" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
         <p className="link-text">

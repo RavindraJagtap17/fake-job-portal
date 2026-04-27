@@ -5,13 +5,13 @@ import API from '../utils/api';
 const Dashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
+  const resultRef = useRef(null);
   const [formData, setFormData] = useState({
     jobTitle: '', companyName: '', description: '', salary: ''
   });
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const resultRef = useRef(null);
   const [scraping, setScraping] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('manual');
@@ -21,10 +21,7 @@ const Dashboard = () => {
   };
 
   const handleScrape = async () => {
-    if (!url) {
-      setError('Please enter a URL');
-      return;
-    }
+    if (!url) { setError('Please enter a URL'); return; }
     setScraping(true);
     setError('');
     try {
@@ -70,60 +67,46 @@ const Dashboard = () => {
     <div>
       {/* Navbar */}
       <div className="navbar">
-        <h1>🔍 Fake Job Detector</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span>Welcome, {user?.name}</span>
+        <h1>🔍 JobGuard</h1>
+        <div className="navbar-right">
+          <span className="navbar-welcome">Hi, {user?.name}</span>
           {user?.isAdmin && (
-            <button
-              className="logout-btn"
-              onClick={() => navigate('/admin')}
-              style={{ background: '#4f46e5' }}>
-              👑 Admin Panel
+            <button className="nav-btn admin-btn" onClick={() => navigate('/admin')}>
+              👑 Admin
             </button>
           )}
-          <button className="logout-btn" onClick={() => navigate('/history')}>
+          <button className="nav-btn" onClick={() => navigate('/history')}>
             History
           </button>
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="nav-btn danger" onClick={handleLogout}>
             Logout
           </button>
         </div>
       </div>
 
-      <div className="container" style={{ marginTop: '30px' }}>
-        <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-          <h2 style={{ marginBottom: '20px', color: '#1a1a2e' }}>Check a Job Posting</h2>
+      {/* Hero */}
+      <div className="hero">
+        <h2>Detect <span>Fake Job</span> Postings</h2>
+        <p>Powered by AI + Machine Learning • 97% Accuracy</p>
+      </div>
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
-            <button
-              onClick={() => setActiveTab('url')}
-              style={{
-                padding: '10px 24px',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '500',
-                background: activeTab === 'url' ? '#4f46e5' : '#f0f0f0',
-                color: activeTab === 'url' ? 'white' : '#333'
-              }}>
-              🔗 Paste URL
-            </button>
-            <button
-              onClick={() => setActiveTab('manual')}
-              style={{
-                padding: '10px 24px',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '500',
-                background: activeTab === 'manual' ? '#4f46e5' : '#f0f0f0',
-                color: activeTab === 'manual' ? 'white' : '#333'
-              }}>
-              ✏️ Enter Manually
-            </button>
-          </div>
+      <div className="container">
 
+        {/* Tabs */}
+        <div className="tab-container">
+          <button
+            className={`tab-btn ${activeTab === 'url' ? 'active' : 'inactive'}`}
+            onClick={() => setActiveTab('url')}>
+            🔗 Paste URL
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'manual' ? 'active' : 'inactive'}`}
+            onClick={() => setActiveTab('manual')}>
+            ✏️ Enter Manually
+          </button>
+        </div>
+
+        <div className="card">
           {error && <p className="error-msg">{error}</p>}
 
           {/* URL Tab */}
@@ -138,41 +121,38 @@ const Dashboard = () => {
                   onChange={(e) => setUrl(e.target.value)}
                 />
               </div>
-              <button
-                className="btn"
-                onClick={handleScrape}
-                disabled={scraping}>
-                {scraping ? 'Fetching job details...' : '🔗 Fetch Job Details'}
+              <button className="btn" onClick={handleScrape} disabled={scraping}>
+                {scraping ? 'Fetching...' : '🔗 Fetch & Analyze'}
               </button>
-              <p style={{ marginTop: '12px', fontSize: '13px', color: '#888' }}>
-                ⚠️ Note: Some websites block scraping. If it fails, use manual entry.
-              </p>
+              <p className="url-note">⚠️ Some websites block scraping. Use manual entry as backup.</p>
             </div>
           )}
 
           {/* Manual Tab */}
           {activeTab === 'manual' && (
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Job Title *</label>
-                <input
-                  type="text"
-                  name="jobTitle"
-                  placeholder="e.g. Software Engineer"
-                  value={formData.jobTitle}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Company Name</label>
-                <input
-                  type="text"
-                  name="companyName"
-                  placeholder="e.g. Google (leave empty if not mentioned)"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Job Title *</label>
+                  <input
+                    type="text"
+                    name="jobTitle"
+                    placeholder="e.g. Software Engineer"
+                    value={formData.jobTitle}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Company Name</label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    placeholder="e.g. TCS"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
               <div className="form-group">
                 <label>Job Description *</label>
@@ -182,7 +162,6 @@ const Dashboard = () => {
                   value={formData.description}
                   onChange={handleChange}
                   required
-                  style={{ minHeight: '150px' }}
                 />
               </div>
               <div className="form-group">
@@ -196,7 +175,7 @@ const Dashboard = () => {
                 />
               </div>
               <button className="btn" type="submit" disabled={loading}>
-                {loading ? 'Analyzing...' : '🔍 Analyze Job'}
+                {loading ? '⏳ Analyzing...' : '🔍 Analyze Job'}
               </button>
             </form>
           )}
@@ -204,66 +183,61 @@ const Dashboard = () => {
 
         {/* Result Card */}
         {result && (
-          <div ref={resultRef} className={`result-card ${result.result === 'FAKE' ? 'result-fake' : 'result-real'}`}>
+          <div
+            ref={resultRef}
+            className={`result-card ${result.result === 'FAKE' ? 'result-fake' : 'result-real'}`}>
+
             <span className={`result-badge ${result.result === 'FAKE' ? 'badge-fake' : 'badge-real'}`}>
               {result.result === 'FAKE' ? '❌ FAKE JOB' : '✅ REAL JOB'}
             </span>
 
-            {/* ML Analysis */}
             {result.mlAnalysis && (
-              <div style={{
-                background: '#f8f8ff',
-                border: '1px solid #e0e0ff',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                marginBottom: '12px'
-              }}>
-                <p style={{ fontWeight: '500', marginBottom: '8px', color: '#4f46e5' }}>
-                  🤖 ML Model Analysis
-                </p>
-                <p style={{ fontSize: '14px', color: '#555', marginBottom: '6px' }}>
-                  Confidence: <strong>{result.mlAnalysis.confidence}%</strong>
-                </p>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <span style={{
-                    background: '#fff5f5',
-                    color: '#e53e3e',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    fontSize: '13px'
-                  }}>
-                    ❌ Fake: {result.mlAnalysis.fakeProbability}%
-                  </span>
-                  <span style={{
-                    background: '#f0fff4',
-                    color: '#38a169',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    fontSize: '13px'
-                  }}>
-                    ✅ Real: {result.mlAnalysis.realProbability}%
-                  </span>
+              <div className="ml-box">
+                <p className="ml-box-title">🤖 ML Model Analysis</p>
+                <div className="prob-row">
+                  <span className="prob-label">Fake</span>
+                  <div className="prob-bar">
+                    <div
+                      className="prob-fill fake"
+                      style={{ width: `${result.mlAnalysis.fakeProbability}%` }}
+                    />
+                  </div>
+                  <span className="prob-val">{result.mlAnalysis.fakeProbability}%</span>
+                </div>
+                <div className="prob-row">
+                  <span className="prob-label">Real</span>
+                  <div className="prob-bar">
+                    <div
+                      className="prob-fill real"
+                      style={{ width: `${result.mlAnalysis.realProbability}%` }}
+                    />
+                  </div>
+                  <span className="prob-val">{result.mlAnalysis.realProbability}%</span>
                 </div>
               </div>
             )}
 
-            <p style={{ color: '#555', marginBottom: '8px' }}>
-              Rule Based Score: <strong>{result.score}</strong>
+            <p className="score-row">
+              Rule Based Score: <strong style={{ color: result.result === 'FAKE' ? '#e53e3e' : '#38a169' }}>
+                {result.score}
+              </strong>
             </p>
 
             {result.flags.length > 0 && (
               <>
-                <p style={{ fontWeight: '500', marginBottom: '8px' }}>Reasons:</p>
+                <p style={{ fontWeight: '600', marginBottom: '8px', fontSize: '14px' }}>
+                  ⚠️ Reasons Flagged:
+                </p>
                 <ul className="flags-list">
                   {result.flags.map((flag, index) => (
-                    <li key={index}>⚠️ {flag}</li>
+                    <li key={index}>{flag}</li>
                   ))}
                 </ul>
               </>
             )}
 
             {result.result === 'REAL' && (
-              <p style={{ color: '#38a169', marginTop: '8px' }}>
+              <p style={{ color: '#38a169', marginTop: '10px', fontSize: '14px' }}>
                 ✅ No suspicious activity detected in this job posting.
               </p>
             )}

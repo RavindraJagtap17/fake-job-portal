@@ -13,33 +13,37 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
-  try {
-    const res = await API.post('/auth/login', formData);
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-    if (res.data.user.isAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/dashboard');
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await API.post('/auth/login', formData);
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      if (res.data.user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong');
     }
-  } catch (err) {
-    setError(err.response?.data?.message || 'Something went wrong');
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>🔍 Fake Job Detector</h2>
-        <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#666' }}>Login</h3>
+        <div className="auth-logo">
+          <div className="auth-logo-icon">🔍</div>
+          <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#1a1a2e' }}>JobGuard</h1>
+          <p style={{ fontSize: '13px', color: '#999', marginTop: '4px' }}>Fake Job Detection Portal</p>
+        </div>
+        <h2>Welcome Back</h2>
         {error && <p className="error-msg">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               name="email"
